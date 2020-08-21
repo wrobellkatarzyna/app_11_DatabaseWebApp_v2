@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+
 # console from app_11_DatabaseWebApp import db
 
 app = Flask(__name__)
@@ -29,8 +30,15 @@ def success():
     if request.method == 'POST':
         email = request.form["email_name"]
         height = request.form["height_name"]
-        print(email, height)
-        return render_template("success.html")
+        send_email(email, height)
+        if db.session.query(Data).filter(Data.email_ == email).count() == 0:
+            data = Data(email, height)
+            db.session.add(data)
+            db.session.commit()
+            print(type(data))
+            return render_template("success.html")
+        return render_template("index.html",
+                               text="Height for this email has been already provided.")
 
 
 if __name__ == '__main__':
